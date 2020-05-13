@@ -89,6 +89,7 @@ class GCNLafLayer(nn.Module):
         if self.b is not None:
             self.b.data.uniform_(-stdv, stdv)
         self.aggregator.reset_parameters()
+        print("Reset weights: {}".format(self.aggregator.weights))
 
     def forward(self, X, adj):
         (B, N, _) = adj.shape

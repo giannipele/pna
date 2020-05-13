@@ -73,6 +73,7 @@ class GINLafLayer(nn.Module):
     def reset_parameters(self):
         self.epsilon.data.fill_(0.1)
         self.aggregator.reset_parameters()
+        print("Reset weights: {}".format(self.aggregator.weights))
 
     def forward(self, input, adj):
         (B, N, _) = adj.shape
