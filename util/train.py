@@ -221,10 +221,10 @@ def execute_train(gnn_args, args):
 
         if loss_values[-1] < best:
             # save current model
-            torch.save(model.state_dict(), '{}.pkl'.format(epoch))
+            torch.save(model.state_dict(), '{}_{}.pkl'.format(pkl_str,epoch))
             # remove previous model
             if best_epoch >= 0:
-                os.remove('{}.pkl'.format(best_epoch))
+                os.remove('{}_{}.pkl'.format(pkl_str,best_epoch))
             # update training variables
             best = loss_values[-1]
             best_epoch = epoch
