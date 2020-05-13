@@ -67,7 +67,7 @@ class GINLafLayer(nn.Module):
         self.post_transformation = MLP(in_size=in_features, hidden_size=max(in_features, out_features),
                                        out_size=out_features, layers=fc_layers, mid_activation='relu',
                                        last_activation='relu', mid_b_norm=True, last_b_norm=False, device=device)
-        self.aggregator = AdjAggregationLayer(function=function)
+        self.aggregator = AdjAggregationLayer(function=function, grad=True)
         self.reset_parameters()
 
     def reset_parameters(self):
