@@ -109,8 +109,13 @@ def execute_train(gnn_args, args):
     model = GNN(**vars(gnn_args))
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
+    layer_str = str(gnn_args.first_conv_descr['layer_type'].__name__)
+    pkl_str = layer_str + "_s{}".format(args.seed)
+    flog = open('{}.log'.format(pkl_str), 'w')
+
     pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print("Total params", pytorch_total_params)
+    flog.write("Total params {}\n".format(pytorch_total_params))
 
     def move_cuda(dset):
         assert args.cuda, "Cannot move dataset on CUDA, running on cpu"
@@ -159,7 +164,11 @@ def execute_train(gnn_args, args):
                   'loss.val: {:.4f}'.format(loss_val),
                   'time: {:.4f}s'.format(time.time() - t))
             sys.stdout.flush()
-
+            flog.write('Epoch: {:04d}\tloss.train: {:.4f}\tloss.val: {:.4f}\ttime: {:.4f}s\n'.format(epoch + 1,
+                                                                                                 loss_train.data.item(),
+                                                                                                 loss_val,
+                                                                                                 time.time() - t))
+            flog.flush()
         return loss_val
 
     def compute_test():
@@ -183,6 +192,9 @@ def execute_train(gnn_args, args):
             print(dset, ": ",
                   specific_loss_multiple_batches(output, (node_labels[dset], graph_labels[dset]), loss=args.loss,
                                                  only_nodes=args.only_nodes, only_graph=args.only_graph))
+            flog.write("Test set results {}: loss= {:.4f}\n".format(dset, loss_test))
+            flog.write("{}: {}\n".format(dset, specific_loss_multiple_batches(output, (node_labels[dset], graph_labels[dset]), loss=args.loss,
+                                                                              only_nodes=args.only_nodes, only_graph=args.only_graph)))
 
             # free unnecessary data
             del output_zip
@@ -222,14 +234,21 @@ def execute_train(gnn_args, args):
 
         if bad_counter == args.patience:
             print('Early stop at epoch {} (no improvement in last {} epochs)'.format(epoch + 1, bad_counter))
+            flog.write('Early stop at epoch {} (no improvement in last {} epochs)\n'.format(epoch + 1, bad_counter))
             break
 
     print("Optimization Finished!")
     print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
 
+    flog.write("Optimization Finished!\n")
+    flog.write("Total time elapsed: {:.4f}s\n".format(time.time() - t_total))
+
     # Restore best model
     print('Loading {}th epoch'.format(best_epoch + 1))
-    model.load_state_dict(torch.load('{}.pkl'.format(best_epoch)))
+    flog.write('Loading {}th epoch\n'.format(best_epoch + 1))
+    model.load_state_dict(torch.load('{}_{}.pkl'.format(pkl_str, best_epoch)))
 
     # Testing
     compute_test()
+    flog.flush()
+    flog.close()
