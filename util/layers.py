@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+from laf import AdjAggregationLayer
 from util.util import get_activation
 
 
@@ -272,4 +272,20 @@ class S2SReadout(nn.Module):
 
     def forward(self, x):
         x = self.set2set(x)
+        return self.mlp(x)
+
+
+class LafReadout(nn.Module):
+    def __init__(self, in_size, hidden_size, out_size, fc_layers=3, device='cpu', final_activation='relu', aggregation='mean'):
+        super(LafReadout, self).__init__()
+        self.aggregator = AdjAggregationLayer(device=device, function=aggregation)
+        self.aggregator.reset_parameters()
+        self.mlp = MLP(in_size=2 * in_size, hidden_size=hidden_size, out_size=out_size, layers=fc_layers,
+                       mid_activation="relu", last_activation=final_activation, mid_b_norm=True, last_b_norm=False,
+                       device=device)
+
+    def forward(self, x):
+        sh = (x.shape[0], x.shape[1], x.shape[1])
+        adj = torch.ones(sh)
+        x = self.aggregator(x, adj)
         return self.mlp(x)
