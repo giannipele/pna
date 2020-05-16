@@ -132,14 +132,16 @@ class PNALafTower(nn.Module):
         self.gru_features = in_features * len(aggregators) * len(scalers)
         self.aggregators_list = nn.ModuleList()
         for agg in aggregators:
-            self.aggregators_list.append(AdjAggregationLayer(grad=True, device=device, function=agg))
+            aggr = AdjAggregationLayer(grad=True, device=device, function=agg)
+            aggr.reset_parameters()
+            self.aggregators_list.append(aggr)
         self.scalers = scalers
         self.self_loop = self_loop
         self.pretrans = MLP(in_size=2 * self.in_features, hidden_size=self.in_features, out_size=self.in_features,
-                            layers=pretrans_layers, mid_activation='relu', last_activation='none')
+                            layers=pretrans_layers, mid_activation='relu', last_activation='relu')
         self.posttrans = MLP(in_size=(len(aggregators) * len(scalers) + 1) * self.in_features,
                              hidden_size=self.out_features, out_size=self.out_features, layers=posttrans_layers,
-                             mid_activation='relu', last_activation='none')
+                             mid_activation='relu', last_activation='relu')
         self.avg_d = avg_d
 
     def forward(self, input, adj):
@@ -149,7 +151,7 @@ class PNALafTower(nn.Module):
         h_i = input.unsqueeze(2).repeat(1, 1, N, 1)
         h_j = input.unsqueeze(1).repeat(1, N, 1, 1)
         h_cat = torch.cat([h_i, h_j], dim=3)
-        h_mod = F.relu(self.pretrans(h_cat))
+        h_mod = self.pretrans(h_cat)
 
         # aggregation
         m = torch.cat([self.aggregate_laf(aggregator, h_mod, adj, self_loop=self.self_loop, device=self.device) for aggregator in self.aggregators_list], dim=
