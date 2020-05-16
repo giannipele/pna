@@ -2,8 +2,7 @@ import types
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from util.layers import GRU, S2SReadout, MLP
-
+from util.layers import GRU, S2SReadout, MLP, LafReadout
 
 class GNN(nn.Module):
     def __init__(self, nfeat, nhid, nodes_out, graph_out, dropout, conv_layers=2, fc_layers=3, first_conv_descr=None,
@@ -80,8 +79,9 @@ class GNN(nn.Module):
                                   mid_activation="LeakyReLU", last_activation=final_activation, device=device)
 
         # graph output: S2S readout
-        self.graph_read_out = S2SReadout(n_conv_out, n_conv_out, graph_out, fc_layers=fc_layers, device=device,
-                                         final_activation=final_activation)
+        #self.graph_read_out = S2SReadout(n_conv_out, n_conv_out, graph_out, fc_layers=fc_layers, device=device,
+        #                                 final_activation=final_activation)
+        self.graph_read_out = LafReadout(aggregation='mean')
 
     def forward(self, x, adj):
         # graph convolutions
