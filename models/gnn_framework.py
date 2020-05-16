@@ -81,7 +81,8 @@ class GNN(nn.Module):
         # graph output: S2S readout
         #self.graph_read_out = S2SReadout(n_conv_out, n_conv_out, graph_out, fc_layers=fc_layers, device=device,
         #                                 final_activation=final_activation)
-        self.graph_read_out = LafReadout(aggregation='mean')
+        self.graph_read_out = LafReadout(n_conv_out, n_conv_out, graph_out, fc_layers=fc_layers, device=device,
+                                         final_activation=final_activation, aggregation='mean')
 
     def forward(self, x, adj):
         # graph convolutions
