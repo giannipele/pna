@@ -280,7 +280,7 @@ class LafReadout(nn.Module):
         super(LafReadout, self).__init__()
         self.aggregator = AdjAggregationLayer(device=device, function=aggregation)
         self.aggregator.reset_parameters()
-        self.mlp = MLP(in_size=2 * in_size, hidden_size=hidden_size, out_size=out_size, layers=fc_layers,
+        self.mlp = MLP(in_size=in_size, hidden_size=hidden_size, out_size=out_size, layers=fc_layers,
                        mid_activation="relu", last_activation=final_activation, mid_b_norm=True, last_b_norm=False,
                        device=device)
 
