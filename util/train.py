@@ -49,6 +49,8 @@ def build_arg_parser():
                         help='Whether to use the model with fixed middle convolutions.')
     parser.add_argument('--variable', action='store_true', default=False,
                         help='Whether to have a variable number of comvolutional layers.')
+    parser.add_argument('--name', type=str, default='default',
+                        help='String to identify the experiment')
     return parser
 
 
@@ -67,6 +69,9 @@ def execute_train(gnn_args, args):
     :param gnn_args: the description of the model to be trained (expressed as arguments for GNN.__init__)
     :param args: the parameters of the training session
     """
+    print(args)
+    print(gnn_args)
+
     args.cuda = not args.no_cuda and torch.cuda.is_available()
 
     np.random.seed(args.seed)
@@ -110,8 +115,11 @@ def execute_train(gnn_args, args):
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
     layer_str = str(gnn_args.first_conv_descr['layer_type'].__name__)
-    pkl_str = layer_str + "_s{}".format(args.seed)
+    pkl_str = layer_str + "_{}_{}".format(args.seed, args.name)
     flog = open('{}.log'.format(pkl_str), 'w')
+
+    flog.write("{}\n".format(args))
+    flog.write("{}\n".format(gnn_args))
 
     pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print("Total params", pytorch_total_params)
