@@ -7,7 +7,7 @@ from util.train import execute_train, build_arg_parser
 # Training settings
 parser = build_arg_parser()
 parser.add_argument('--self_loop', action='store_true', default=False, help='Whether to add self loops in aggregators')
-parser.add_argument('--aggregators', type=str, default='mean max min std', help='Aggregators to use')
+parser.add_argument('--aggregators', type=str, default='mean max min sum', help='Aggregators to use')
 parser.add_argument('--scalers', type=str, default='identity amplification attenuation', help='Scalers to use')
 parser.add_argument('--towers', type=int, default=4, help='Number of towers in PNA layers')
 parser.add_argument('--pretrans_layers', type=int, default=1, help='Number of MLP layers before aggregation')

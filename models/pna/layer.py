@@ -5,7 +5,7 @@ from models.pna.aggregators import AGGREGATORS
 from models.pna.scalers import SCALERS
 from util.layers import FCLayer, MLP
 from laf import AdjAggregationLayer
-
+import time
 
 class PNATower(nn.Module):
     def __init__(self, in_features, out_features, aggregators, scalers, avg_d, self_loop, pretrans_layers,
@@ -166,7 +166,10 @@ class PNALafTower(nn.Module):
 
         if self_loop:  # add self connections
             adj = adj + torch.eye(N, device=device).unsqueeze(0)
-
+        t = time.time()
+        #torch.save(X, "X_{}.trc".format(t))
+        #torch.save(adj.unsqueeze(-1), "adj_{}.trc".format(t))
+        #torch.save(aggregator.weights, 'weights.trc')
         out = aggregator(X, adj.unsqueeze(-1))
         return out
 
@@ -206,7 +209,7 @@ class PNALafLayer(nn.Module):
         #aggregators_list = nn.ModuleList()
         #for _ in aggregators:
         #    aggregators_list.append(AdjAggregationLayer(grad=True, device=device))
-        aggregators = ['mean', 'sum', 'max', 'count', 'rand']
+        #aggregators = ['mean', 'sum', 'max', 'min', 'minmax']
 
         scalers = [SCALERS[scale] for scale in scalers]
 
