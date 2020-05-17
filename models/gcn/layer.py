@@ -80,7 +80,7 @@ class GCNLafLayer(nn.Module):
         else:
             self.register_parameter('b', None)
 
-        self.aggregator = AdjAggregationLayer(function=function, grad=True)
+        self.aggregator = AdjAggregationLayer(function=function, grad=True, device=device)
         self.reset_parameters()
 
     def reset_parameters(self):
