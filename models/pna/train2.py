@@ -1,13 +1,13 @@
 from __future__ import division
 from __future__ import print_function
 
-from models.pna.layer import PNALafLayer
+from models.pna.layer import PNALayer2
 from util.train import execute_train, build_arg_parser
 
 # Training settings
 parser = build_arg_parser()
 parser.add_argument('--self_loop', action='store_true', default=False, help='Whether to add self loops in aggregators')
-parser.add_argument('--aggregators', type=str, default='mean max min minmax count sum', help='Aggregators to use')
+parser.add_argument('--aggregators', type=str, default='mean max min sum', help='Aggregators to use')
 parser.add_argument('--scalers', type=str, default='identity amplification attenuation', help='Scalers to use')
 parser.add_argument('--towers', type=int, default=4, help='Number of towers in PNA layers')
 parser.add_argument('--pretrans_layers', type=int, default=1, help='Number of MLP layers before aggregation')
@@ -20,7 +20,7 @@ execute_train(gnn_args=dict(nfeat=None,
                             graph_out=None,
                             dropout=args.dropout,
                             device=None,
-                            first_conv_descr=dict(layer_type=PNALafLayer,
+                            first_conv_descr=dict(layer_type=PNALayer2,
                                                   args=dict(
                                                       aggregators=args.aggregators.split(),
                                                       scalers=args.scalers.split(), avg_d=None,
@@ -30,7 +30,7 @@ execute_train(gnn_args=dict(nfeat=None,
                                                       pretrans_layers=args.pretrans_layers,
                                                       posttrans_layers=args.posttrans_layers
                                                   )),
-                            middle_conv_descr=dict(layer_type=PNALafLayer,
+                            middle_conv_descr=dict(layer_type=PNALayer2,
                                                    args=dict(
                                                        aggregators=args.aggregators.split(),
                                                        scalers=args.scalers.split(),
